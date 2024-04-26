@@ -39,11 +39,16 @@ void establish_connection(EthercatConfig *config, char *ifname, int *result)
     printf("Failed to initialize EtherCAT\n");
     *result = -1;
   }
-  if (!ecx_config_init(&config->ecx_context, TRUE))
+  int wkc = ecx_config_init(&config->ecx_context, TRUE);
+  if (wkc <= 0)
   {
-    printf("NO SLAVES!\n");
+    printf("No slaves found\n");
     *result = -1;
-    return;
+  }
+  else
+  {
+    printf("Found %d slaves\n", wkc);
+    *result = 0;
   }
   ecx_config_map_group(&config->ecx_context, &config->IOmap, 0);
   *result = 0;
@@ -72,6 +77,7 @@ void process_data_exchange(EthercatConfig *config, bool debug)
   ecx_send_processdata(&config->ecx_context);
   ecx_receive_processdata(&config->ecx_context, EC_TIMEOUTRET);
   ecx_writestate(&config->ecx_context, 0);
+  printf("slave count: %d\n", config->ecx_slavecount);
   if (debug)
   {
     for (int i = 1; i <= config->ecx_slavecount; i++)
@@ -119,7 +125,9 @@ void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_
 {
   for (unsigned int i = 0; i < nWheels; i++)
   {
+    printf("Reading pivot angle for wheel %d\n", i);
     txpdo1_t *ecData = (txpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].inputs;
+    printf("Encoder pivot: %d\n", ecData->encoder_pivot);
     pivot_angles[i] = ecData->encoder_pivot;
   }
 }

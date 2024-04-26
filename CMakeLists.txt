@@ -5,7 +5,18 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_INSTALL_DIR share/${PROJECT_NAME}/cmake)
 
-find_package(soem REQUIRED)
+set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+
+list(APPEND CMAKE_PREFIX_PATH /home/batsy/rc/build/)
+list(APPEND CMAKE_MODULE_PATH /home/batsy/rc/build/)
+
+LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib/)
+
+# look for soem .so in /home/batsy/rc/install/lib folder
+find_library(soem_LIBRARIES soem HINTS ${CMAKE_INSTALL_PREFIX}/lib/ REQUIRED)
+
+# find_package(soem REQUIRED)
 
 list(APPEND local_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/)
 
@@ -21,7 +32,10 @@ add_library(${PROJECT_NAME} SHARED
 	src/PlatformToWheelSolver.c
 	src/SmartWheelKinematics.c
 )
-
+target_include_directories(${PROJECT_NAME} PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>
+)
 target_link_libraries(${PROJECT_NAME}
 	soem
 	pthread
@@ -50,24 +64,6 @@ install(
   NAMESPACE ${PROJECT_NAME}::
   DESTINATION ${CMAKE_INSTALL_DIR})
 
-# add all cpp files in the test directory as test sources
-file(GLOB test_sources test/*.c)
-
-# make executables
-foreach(source ${test_sources})
-  message(STATUS "Adding test: ${source}")
-  get_filename_component(name ${source} NAME_WE)
-  add_executable(${name} ${source})
-  target_link_libraries(${name} ${PROJECT_NAME})
-
-  # set runtime path
-  set_target_properties(${name} PROPERTIES
-   BUILD_WITH_INSTALL_RPATH TRUE
-   INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib"
-   INSTALL_RPATH_USE_LINK_PATH TRUE)
-  install(TARGETS ${name} RUNTIME DESTINATION bin)
-endforeach(source ${test_sources})
-
 # Generate the CMake config file
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(${PROJECT_NAME}-config-version.cmake
@@ -83,3 +79,18 @@ configure_package_config_file(${PROJECT_NAME}-config.cmake.in
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config.cmake
               ${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}-config-version.cmake
         DESTINATION ${CMAKE_INSTALL_DIR})
+
+# add all cpp files in the test directory as test sources
+file(GLOB test_sources test/*.c)
+
+# make executables
+foreach(source ${test_sources})
+  message(STATUS "Adding test: ${source}")
+  get_filename_component(name ${source} NAME_WE)
+  add_executable(${name} ${source})
+  target_link_libraries(${name} ${PROJECT_NAME} soem pthread gsl gslcblas m)
+
+  message(STATUS "rpath: ${CMAKE_INSTALL_PREFIX}/lib")  
+
+  install(TARGETS ${name} RUNTIME DESTINATION bin)
+endforeach(source ${test_sources})
