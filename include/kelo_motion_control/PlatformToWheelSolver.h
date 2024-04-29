@@ -17,6 +17,8 @@
 
 typedef struct
 {
+  int nWheels;
+  int *index_to_EtherCAT;
   double radius;
   double castor_offset;
   double half_wheel_distance;

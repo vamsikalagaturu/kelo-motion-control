@@ -1,9 +1,12 @@
 #include "kelo_motion_control/KeloMotionControl.h"
 
-void init_kelo_base_config(KeloBaseConfig *config, double radius, double castor_offset,
+void init_kelo_base_config(KeloBaseConfig *config, int nWheels, int *index_to_EtherCAT,
+                           double radius, double castor_offset,
                            double half_wheel_distance, double *wheel_coordinates,
                            double *pivot_angles_deviation)
 {
+  config->nWheels = nWheels;
+  config->index_to_EtherCAT = index_to_EtherCAT;
   config->radius = radius;
   config->castor_offset = castor_offset;
   config->half_wheel_distance = half_wheel_distance;
@@ -53,8 +56,8 @@ void compute_wheel_torques(KeloBaseConfig *kelo_base_config, TorqueControlState 
 {
   platform_force_to_wheel_torques(kelo_base_config, wheel_torques, pivot_angles, state->b,
                                   state->b_verify, state->A, state->A_inv_T, state->A_tmp,
-                                  state->A_inv_T_tmp, state->work, state->W, state->K, state->u,
-                                  state->V, state->u_inv, M, N, false);
+                                  state->A_inv_T_tmp, state->work, state->W, state->K,
+                                  state->u, state->V, state->u_inv, M, N, false);
 }
 
 void free_torque_control_state(TorqueControlState *state)

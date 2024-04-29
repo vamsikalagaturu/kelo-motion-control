@@ -127,7 +127,7 @@ void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_
   {
     printf("Reading pivot angle for wheel %d\n", i);
     txpdo1_t *ecData = (txpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].inputs;
-    printf("Encoder pivot: %d\n", ecData->encoder_pivot);
+    printf("Encoder pivot: %f\n", ecData->encoder_pivot);
     pivot_angles[i] = ecData->encoder_pivot;
   }
 }

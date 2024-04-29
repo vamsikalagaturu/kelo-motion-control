@@ -28,7 +28,8 @@ typedef struct
   gsl_matrix *b_verify;
 } TorqueControlState;
 
-void init_kelo_base_config(KeloBaseConfig *config, double radius, double castor_offset,
+void init_kelo_base_config(KeloBaseConfig *config, int nWheels, int *index_to_EtherCAT,
+                           double radius, double castor_offset,
                            double half_wheel_distance, double *wheel_coordinates,
                            double *pivot_angles_deviation);
 

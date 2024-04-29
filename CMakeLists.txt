@@ -31,6 +31,7 @@ add_library(${PROJECT_NAME} SHARED
 	src/KELORobotKinematics.c
 	src/PlatformToWheelSolver.c
 	src/SmartWheelKinematics.c
+  src/mediator.c
 )
 target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
