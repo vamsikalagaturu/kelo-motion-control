@@ -14,6 +14,11 @@
 #define PLATFORM_WHEEL_INVERSE_KINEMATICS_SOLVER_H
 
 #include <gsl/gsl_matrix_double.h>
+#include <math.h>
+#include <stdio.h>
+
+#include "kelo_motion_control/KELORobotKinematics.h"
+#include "kelo_motion_control/SmartWheelKinematics.h"
 
 typedef struct
 {

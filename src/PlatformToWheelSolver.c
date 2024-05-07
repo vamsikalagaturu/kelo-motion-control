@@ -9,13 +9,6 @@
 
 #include "kelo_motion_control/PlatformToWheelSolver.h"
 
-#include <gsl/gsl_matrix_double.h>
-#include <math.h>
-#include <stdio.h>
-
-#include "kelo_motion_control/KELORobotKinematics.h"
-#include "kelo_motion_control/SmartWheelKinematics.h"
-
 #define _USE_MATH_DEFINES
 
 void print_matrix(const gsl_matrix *m)
@@ -29,6 +22,7 @@ void print_matrix(const gsl_matrix *m)
       printf("%f\t", gsl_matrix_get(m, i, j));
     }
   }
+  printf("\n");
 }
 
 void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torques, double *pivot_angles,
@@ -46,33 +40,10 @@ void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torqu
    *
    */
 
-  // double radius = 0.052;                // 0.105
-  // double castor_offset = 0.01;          // 0.01
-  // double half_wheel_distance = 0.0275;  // 0.0775
-
-  // double wheel_coordinates[8] = {0.175,  0.1605,  -0.175, 0.1605,
-  //                                -0.175, -0.1605, 0.175,  -0.1605};  // x1,y1,x2,y2,..,y4
-  // double pivot_angles_deviation[4] = {-2.5, -1.25, -2.14, 1.49};  // https://github.com/kelo-robotics/kelo_tulip/blob/master/config/example.yaml
-
   double radius = config->radius;
   double castor_offset = config->castor_offset;
   double half_wheel_distance = config->half_wheel_distance;
   double *wheel_coordinates = config->wheel_coordinates;
-  double *pivot_angles_deviation = config->pivot_angles_deviation;
-
-  /**
-   * @brief updating pivot angles
-   *
-   */
-  size_t i;
-  for (i = 0; i < 4; i++)
-  {
-    pivot_angles[i] = pivot_angles[i] - pivot_angles_deviation[i];
-    if (pivot_angles[i] > 2 * M_PI)
-      pivot_angles[i] -= 2 * M_PI;
-    else if (pivot_angles[i] < 0.0)
-      pivot_angles[i] += 2 * M_PI;
-  }
 
   double pivot_forces[8];
 

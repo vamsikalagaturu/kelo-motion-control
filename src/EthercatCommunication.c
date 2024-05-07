@@ -6,6 +6,8 @@
  *
  */
 #include "kelo_motion_control/EthercatCommunication.h"
+#include <math.h>
+#define _USE_MATH_DEFINES
 
 void init_ecx_context(EthercatConfig *config)
 {
@@ -56,35 +58,30 @@ void establish_connection(EthercatConfig *config, char *ifname, int *result)
 
 void check_slave_state(EthercatConfig *config, uint16 required_state, int *result)
 {
-  ecx_readstate(&config->ecx_context);
   ecx_statecheck(&config->ecx_context, 0, required_state, EC_TIMEOUTSTATE);
-  for (int i = 1; i <= config->ecx_slavecount; i++)
+  
+  if (config->ecx_slave[0].state != required_state)
   {
-    if (config->ecx_slave[i].state != required_state)
+    ecx_readstate(&config->ecx_context);
+    for (int i = 1; i <= config->ecx_slavecount; i++)
     {
-      printf("Slave %i State= %i\n", i, config->ecx_slave[i].state);
-      *result = -1;
-      return;
+      if (config->ecx_slave[i].state != required_state)
+      {
+        printf("Slave %i State= %i\n", i, config->ecx_slave[i].state);
+      }
     }
+    *result = -1;
   }
   *result = 0;
 }
 
-void process_data_exchange(EthercatConfig *config, bool debug)
+void process_data_exchange(EthercatConfig *config)
 {
   ecx_send_processdata(&config->ecx_context);
   config->ecx_slave[0].state = EC_STATE_OPERATIONAL;
   ecx_send_processdata(&config->ecx_context);
   ecx_receive_processdata(&config->ecx_context, EC_TIMEOUTRET);
   ecx_writestate(&config->ecx_context, 0);
-  printf("slave count: %d\n", config->ecx_slavecount);
-  if (debug)
-  {
-    for (int i = 1; i <= config->ecx_slavecount; i++)
-    {
-      printf("Slave %i has name %s\n", i, config->ecx_slave[i].name);
-    }
-  }
 }
 
 void send_and_receive_data(EthercatConfig *config)
@@ -121,13 +118,15 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
 }
 
 void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
-                       int nWheels)
+                       int nWheels, double *pivot_angles_deviation)
 {
   for (unsigned int i = 0; i < nWheels; i++)
   {
-    printf("Reading pivot angle for wheel %d\n", i);
     txpdo1_t *ecData = (txpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].inputs;
-    printf("Encoder pivot: %f\n", ecData->encoder_pivot);
-    pivot_angles[i] = ecData->encoder_pivot;
+    pivot_angles[i] = ecData->encoder_pivot - pivot_angles_deviation[i];
+    if (pivot_angles[i] > 2 * M_PI)
+      pivot_angles[i] -= 2 * M_PI;
+    else if (pivot_angles[i] < 0.0)
+      pivot_angles[i] += 2 * M_PI;
   }
 }

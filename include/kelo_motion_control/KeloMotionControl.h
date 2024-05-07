@@ -4,6 +4,7 @@
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_matrix.h>
+#include <gsl/gsl_matrix_double.h>
 #include <gsl/gsl_multifit.h>
 #include <gsl/gsl_sf_trig.h>
 #include <stdbool.h>
@@ -37,7 +38,7 @@ void init_torque_control_state(TorqueControlState *state, int N, int M);
 
 void set_weight_matrix(TorqueControlState *state, int N, int M);
 
-void set_platform_force(TorqueControlState *state, double *platform_force);
+void set_platform_force(TorqueControlState *state, double *platform_force, int N);
 
 void compute_wheel_torques(KeloBaseConfig *config, TorqueControlState *state, double *pivot_angles, double *wheel_torques,
                            int N, int M);

@@ -20,12 +20,12 @@ void init_torque_control_state(TorqueControlState *state, int N, int M)
   state->A_inv_T = gsl_matrix_alloc(M, N);
   state->A_tmp = gsl_matrix_alloc(N, M);
   state->A_inv_T_tmp = gsl_matrix_alloc(M, N);
-  state->work = gsl_vector_alloc(M);
-  state->W = gsl_matrix_alloc(N, M);
+  state->work = gsl_vector_alloc(N);
+  state->W = gsl_matrix_alloc(N, N);
   state->K = gsl_matrix_alloc(M, M);
-  state->u = gsl_vector_alloc(M);
-  state->V = gsl_matrix_alloc(M, M);
-  state->u_inv = gsl_matrix_alloc(M, M);
+  state->u = gsl_vector_alloc(N);
+  state->V = gsl_matrix_alloc(N, N);
+  state->u_inv = gsl_matrix_alloc(N, N);
   state->b = gsl_matrix_alloc(N, 1);
   state->b_verify = gsl_matrix_alloc(N, 1);
 }
@@ -43,9 +43,9 @@ void set_weight_matrix(TorqueControlState *state, int N, int M)
   }
 }
 
-void set_platform_force(TorqueControlState *state, double *platform_force)
+void set_platform_force(TorqueControlState *state, double *platform_force, int N)
 {
-  for (size_t i = 0; i < state->b->size1; i++)
+  for (size_t i = 0; i < N; i++)
   {
     gsl_matrix_set(state->b, i, 0, platform_force[i]);
   }

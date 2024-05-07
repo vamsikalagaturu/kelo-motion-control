@@ -47,7 +47,7 @@ void establish_connection(EthercatConfig *config, char *ifname, int *result);
 
 void check_slave_state(EthercatConfig *config, uint16 required_state, int *result);
 
-void process_data_exchange(EthercatConfig *config, bool debug);
+void process_data_exchange(EthercatConfig *config);
 
 void send_and_receive_data(EthercatConfig *config);
 
@@ -57,6 +57,6 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
                        double *wheel_torques, int nWheels, double motor_const);
 
 void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
-                       int nWheels);
+                       int nWheels, double *pivot_angles_deviation);
 
 #endif  // KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H
