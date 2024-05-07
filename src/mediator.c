@@ -18,7 +18,7 @@ void initialize_kelo_base(KeloBaseConfig* kelo_base_config,
   init_ecx_context(ethercat_config);
 }
 
-void establish_kelo_base_connection(EthercatConfig* ethercat_config, char* ifname,
+void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config, char* ifname,
                                     int* result)
 {
   *result = 0;
@@ -37,7 +37,23 @@ void establish_kelo_base_connection(EthercatConfig* ethercat_config, char* ifnam
     return;
   }
 
-  process_data_exchange(ethercat_config, false);
+  rxpdo1_t msg;
+  msg.timestamp = 1;
+  msg.command1 = 0;
+  msg.limit1_p = 0;
+  msg.limit1_n = 0;
+  msg.limit2_p = 0;
+  msg.limit2_n = 0;
+  msg.setpoint1 = 0;
+  msg.setpoint2 = 0;
+  
+  for (unsigned int i = 0; i < kelo_base_config->nWheels; i++)
+  {
+    rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
+    *ecData = msg;
+  }
+
+  process_data_exchange(ethercat_config);
   check_slave_state(ethercat_config, EC_STATE_OPERATIONAL, result);
   if (*result == -1)
   {
@@ -50,7 +66,7 @@ void get_kelo_base_state(KeloBaseConfig* kelo_base_config,
                          EthercatConfig* ethercat_config, double* pivot_angles)
 {
   read_pivot_angles(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
-                    kelo_base_config->nWheels);
+                    kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation);
 }
 
 void set_kelo_base_torques(KeloBaseConfig* kelo_base_config,

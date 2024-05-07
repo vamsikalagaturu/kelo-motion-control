@@ -14,9 +14,9 @@ list(APPEND CMAKE_MODULE_PATH /home/batsy/rc/build/)
 LINK_DIRECTORIES(${CMAKE_INSTALL_PREFIX}/lib/)
 
 # look for soem .so in /home/batsy/rc/install/lib folder
-find_library(soem_LIBRARIES soem HINTS ${CMAKE_INSTALL_PREFIX}/lib/ REQUIRED)
+# find_library(soem_LIBRARIES soem HINTS ${CMAKE_INSTALL_PREFIX}/lib/ REQUIRED)
 
-# find_package(soem REQUIRED)
+find_package(soem REQUIRED)
 
 list(APPEND local_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/)
 
