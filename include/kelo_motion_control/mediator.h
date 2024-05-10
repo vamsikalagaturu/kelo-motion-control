@@ -8,7 +8,8 @@
 void initialize_kelo_base(KeloBaseConfig* kelo_base_config,
                           EthercatConfig* ethercat_config);
 
-void establish_kelo_base_connection(EthercatConfig* ethercat_config, char* ifname, int* result);
+void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config, char* ifname,
+                                    int* result);
 
 void get_kelo_base_state(KeloBaseConfig* kelo_base_config,
                          EthercatConfig* ethercat_config, double* pivot_angles);
