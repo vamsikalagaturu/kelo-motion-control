@@ -45,7 +45,11 @@ void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torqu
   double half_wheel_distance = config->half_wheel_distance;
   double *wheel_coordinates = config->wheel_coordinates;
 
-  double pivot_forces[8];
+  double pivot_forces[config->nWheels * 2];
+  for (int i = 0; i < config->nWheels * 2; i++)
+  {
+    pivot_forces[i] = 0.0;
+  }
 
   /**
    * @brief 2. get jacobian (A) -> KELORobotKinematics.c
