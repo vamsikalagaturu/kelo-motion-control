@@ -6,16 +6,16 @@
 #include <string.h>
 #include <unistd.h>
 
-#include "kelo_motion_control/KeloDriveAPI.h"
 #include "soem/ethercat.h"
-#include "soem/ethercatbase.h"
-#include "soem/ethercatcoe.h"
-#include "soem/ethercatconfig.h"
-#include "soem/ethercatdc.h"
-#include "soem/ethercatmain.h"
-#include "soem/ethercatprint.h"
 #include "soem/ethercattype.h"
 #include "soem/nicdrv.h"
+#include "soem/ethercatbase.h"
+#include "soem/ethercatmain.h"
+#include "soem/ethercatconfig.h"
+#include "soem/ethercatcoe.h"
+#include "soem/ethercatdc.h"
+#include "soem/ethercatprint.h"
+#include "kelo_motion_control/KeloDriveAPI.h"
 
 #define IO_MAP_SIZE 4096
 
