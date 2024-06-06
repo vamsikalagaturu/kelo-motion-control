@@ -1,25 +1,7 @@
 #include "kelo_motion_control/mediator.h"
 
-void initialize_kelo_base(KeloBaseConfig* kelo_base_config,
-                          EthercatConfig* ethercat_config)
-{
-  int nWheels = 4;
-  int index_to_EtherCAT[4] = {2, 3, 5, 6};
-  double radius = 0.052;
-  double castor_offset = 0.01;
-  double half_wheel_distance = 0.0275;
-  double wheel_coordinates[8] = {0.175,  0.1605,  -0.175, 0.1605,
-                                 -0.175, -0.1605, 0.175,  -0.1605};  // x1,y1,x2,y2,..,y4
-  double pivot_angles_deviation[4] = {-2.5, -1.25, -2.14, 1.49};
-  init_kelo_base_config(kelo_base_config, nWheels, index_to_EtherCAT, radius,
-                        castor_offset, half_wheel_distance, wheel_coordinates,
-                        pivot_angles_deviation);
-
-  init_ecx_context(ethercat_config);
-}
-
-void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config, char* ifname,
-                                    int* result)
+void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
+                                    EthercatConfig* ethercat_config, char* ifname, int* result)
 {
   *result = 0;
 
@@ -38,19 +20,26 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config, EthercatCo
   }
 
   rxpdo1_t msg;
-  msg.timestamp = 1;
+  memset(&msg, 0, sizeof(msg));
   msg.command1 = 0;
+  msg.command2 = 0;
+  msg.timestamp = 1;
   msg.limit1_p = 0;
   msg.limit1_n = 0;
   msg.limit2_p = 0;
   msg.limit2_n = 0;
   msg.setpoint1 = 0;
   msg.setpoint2 = 0;
-  
-  for (unsigned int i = 0; i < kelo_base_config->nWheels; i++)
+
+  for (size_t i=0; i < kelo_base_config->nWheels; i++)
+  {
+    printf("index_to_EtherCAT[%d]: %d\n", i, kelo_base_config->index_to_EtherCAT[i]);
+  }
+
+  for (size_t i = 0; i < kelo_base_config->nWheels; i++)
   {
     rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
-    *ecData = msg;
+    memcpy(ecData, &msg, sizeof(msg));
   }
 
   process_data_exchange(ethercat_config);
@@ -62,19 +51,131 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config, EthercatCo
   }
 }
 
-void get_kelo_base_state(KeloBaseConfig* kelo_base_config,
-                         EthercatConfig* ethercat_config, double* pivot_angles)
+void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
+                         double* pivot_angles, double* wheel_encoder_values,
+                         double* prev_wheel_encoders, double* odomx, double* odomy, double* odoma)
 {
-  read_pivot_angles(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
-                    kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation);
+  read_encoder_values(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
+                      kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation,
+                      wheel_encoder_values);
+
+  update_odom(odomx, odomy, odoma, wheel_encoder_values, prev_wheel_encoders, pivot_angles,
+              kelo_base_config);
 }
 
-void set_kelo_base_torques(KeloBaseConfig* kelo_base_config,
-                           EthercatConfig* ethercat_config, double* wheel_torques)
+void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
+                           double* wheel_torques)
 {
   rxpdo1_t rx_msg;
   create_rx_msg(&rx_msg);
-  set_wheel_torques(ethercat_config, &rx_msg, kelo_base_config->index_to_EtherCAT,
-                    wheel_torques, kelo_base_config->nWheels, MOTOR_CONST);
+  set_wheel_torques(ethercat_config, &rx_msg, kelo_base_config->index_to_EtherCAT, wheel_torques,
+                    kelo_base_config->nWheels, MOTOR_CONST);
   send_and_receive_data(ethercat_config);
+}
+
+void calculate_robot_velocity(double* vx, double* vy, double* va, double* encDisplacement,
+                              double* prev_wheel_encoders, double* pivot_angles,
+                              double* wheel_encoders, KeloBaseConfig* kelo_base_config)
+{
+  double dt = 0.1;
+
+  // initialize the variables
+  *vx = 0;
+  *vy = 0;
+  *va = 0;
+
+  for (int i = 0; i < kelo_base_config->nWheels; i++)
+  {
+    double wl = (wheel_encoders[2 * i] - prev_wheel_encoders[2 * i]) / dt;
+    double wr = -(wheel_encoders[2 * i + 1] - prev_wheel_encoders[2 * i + 1]) / dt;
+
+    prev_wheel_encoders[2 * i] = wheel_encoders[2 * i];
+    prev_wheel_encoders[2 * i + 1] = wheel_encoders[2 * i + 1];
+
+    double theta = pivot_angles[i];
+
+    *vx -= kelo_base_config->radius *
+           ((wl + wr) * cos(theta));  // + 2 * s_d_ratio * (wl - wr) * sin(theta));
+    *vy -= kelo_base_config->radius *
+           ((wl + wr) * sin(theta));  // - 2 * s_d_ratio * (wl - wr) * cos(theta));
+
+    double wangle = atan2(kelo_base_config->wheel_coordinates[2 * i + 1],
+                          kelo_base_config->wheel_coordinates[2 * i]);
+    double d = sqrt(kelo_base_config->wheel_coordinates[2 * i] *
+                        kelo_base_config->wheel_coordinates[2 * i] +
+                    kelo_base_config->wheel_coordinates[2 * i + 1] *
+                        kelo_base_config->wheel_coordinates[2 * i + 1]);
+
+    double s_d_ratio =
+        kelo_base_config->castor_offset / (kelo_base_config->half_wheel_distance * 2);
+
+    *va += kelo_base_config->radius *
+           (2 * (wr - wl) * s_d_ratio * cos(theta - wangle) - (wr + wl) * sin(theta - wangle)) / d;
+
+    // va += r_w * (wr + wl) * sin(theta - wangle) / d;
+    // va += 4*swData->gyro_y;
+  }
+  // averaging the wheel velocity
+  *vx = *vx / kelo_base_config->nWheels / 2;
+  *vy = *vy / kelo_base_config->nWheels / 2;
+  *va = *va / kelo_base_config->nWheels / 2;
+}
+
+void calculate_robot_pose(double vx, double vy, double va, double* odomx, double* odomy,
+                          double* odoma)
+{
+  double dt = 0.1;
+  double dx, dy;
+
+  if (fabs(va) > 0.001)
+  {
+    double vlin = sqrt(vx * vx + vy * vy);
+    double direction = atan2(vy, vx);
+    double circleRadius = fabs(vlin / va);
+    double sign = 1;
+    if (va < 0)
+      sign = -1;
+    // displacement relative to direction of movement
+    double dx_rel = circleRadius * sin(fabs(va) * dt);
+    double dy_rel = sign * circleRadius * (1 - cos(fabs(va) * dt));
+
+    // transform displacement to previous robot frame
+    dx = dx_rel * cos(direction) - dy_rel * sin(direction);
+    dy = dx_rel * sin(direction) + dy_rel * cos(direction);
+  }
+  else
+  {
+    dx = vx * dt;
+    dy = vy * dt;
+  }
+
+  // transform displacement to odom frame
+  *odomx += dx * cos(*odoma) - dy * sin(*odoma);
+  *odomy += dx * sin(*odoma) + dy * cos(*odoma);
+  *odoma = norm(*odoma + va * dt);
+}
+
+double norm(double x)
+{
+  const double TWO_PI = 2.0 * M_PI;
+  while (x < -M_PI)
+  {
+    x += TWO_PI;
+  }
+  while (x > M_PI)
+  {
+    x -= TWO_PI;
+  }
+
+  return x;
+}
+
+void update_odom(double* odomx, double* odomy, double* odoma, double* wheel_encoders,
+                 double* prev_wheel_encoders, double* pivot_angles,
+                 KeloBaseConfig* kelo_base_config)
+{
+  double vx, vy, va, encDisplacement;
+  calculate_robot_velocity(&vx, &vy, &va, &encDisplacement, prev_wheel_encoders, pivot_angles,
+                           wheel_encoders, kelo_base_config);
+  calculate_robot_pose(vx, vy, va, odomx, odomy, odoma);
 }

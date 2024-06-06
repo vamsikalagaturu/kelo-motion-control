@@ -59,7 +59,7 @@ void establish_connection(EthercatConfig *config, char *ifname, int *result)
 void check_slave_state(EthercatConfig *config, uint16 required_state, int *result)
 {
   ecx_statecheck(&config->ecx_context, 0, required_state, EC_TIMEOUTSTATE);
-  
+
   if (config->ecx_slave[0].state != required_state)
   {
     ecx_readstate(&config->ecx_context);
@@ -98,6 +98,8 @@ void create_rx_msg(rxpdo1_t *msg)
   msg->limit1_n = -3;  // lower limit for first wheel
   msg->limit2_p = 3;   // upper limit for second wheel
   msg->limit2_n = -3;  // lower limit for second wheel
+  msg->setpoint1 = 0;  // setpoint for first wheel
+  msg->setpoint2 = 0;  // setpoint for second wheel
 }
 
 void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_EtherCAT,
@@ -117,8 +119,8 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
   }
 }
 
-void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
-                       int nWheels, double *pivot_angles_deviation)
+void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
+                         int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values)
 {
   for (unsigned int i = 0; i < nWheels; i++)
   {
@@ -128,5 +130,8 @@ void read_pivot_angles(EthercatConfig *config, double *pivot_angles, int *index_
       pivot_angles[i] -= 2 * M_PI;
     else if (pivot_angles[i] < 0.0)
       pivot_angles[i] += 2 * M_PI;
+
+    wheel_encoder_values[2 * i] = ecData->encoder_1;
+    wheel_encoder_values[2 * i + 1] = ecData->encoder_2;
   }
 }

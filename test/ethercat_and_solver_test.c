@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
   int nWheels = 4;
-  int index_to_EtherCAT[4] = {3, 5, 7, 9};
+  int index_to_EtherCAT[4] = {6, 7, 3, 4};
   KeloBaseConfig kelo_base_config = {0};
   double radius = 0.052;
   double castor_offset = 0.01;
@@ -12,12 +12,12 @@ int main(int argc, char *argv[])
   double wheel_coordinates[8] = {0.175,  0.1605,  -0.175, 0.1605,
                                  -0.175, -0.1605, 0.175,  -0.1605};  // x1,y1,x2,y2,..,y4
   double pivot_angles_deviation[4] = {-2.5, -1.25, -2.14, 1.49};
-  init_kelo_base_config(&kelo_base_config, nWheels, index_to_EtherCAT, radius, castor_offset, half_wheel_distance,
-                        wheel_coordinates, pivot_angles_deviation);
+  init_kelo_base_config(&kelo_base_config, nWheels, index_to_EtherCAT, radius, castor_offset,
+                        half_wheel_distance, wheel_coordinates, pivot_angles_deviation);
 
   EthercatConfig *ethercat_config = calloc(1, sizeof(*ethercat_config));
   init_ecx_context(ethercat_config);
-  
+
   bool debug = true;
   char ifname[] = "eno1";
   int result;
@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
   msg.limit2_n = 0;
   msg.setpoint1 = 0;
   msg.setpoint2 = 0;
-  
+
   for (unsigned int i = 0; i < nWheels; i++)
   {
     rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[index_to_EtherCAT[i]].outputs;
@@ -75,11 +75,13 @@ int main(int argc, char *argv[])
   set_platform_force(torque_control_state, platform_force, N);
 
   double pivot_angles[4];
-  double wheel_torques[8];
+  double wheel_torques[8] = {0.0};
 
   printf("Reading pivot angles\n");
 
-  read_pivot_angles(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels, kelo_base_config.pivot_angles_deviation);
+  double wheel_encoder_values[8];
+  read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
+                      kelo_base_config.pivot_angles_deviation, wheel_encoder_values);
 
   // print pivot angles
   for (int i = 0; i < nWheels; i++)
@@ -94,14 +96,19 @@ int main(int argc, char *argv[])
   {
     printf("Counter: %d\n", counter);
     usleep(10000);
-    compute_wheel_torques(&kelo_base_config, torque_control_state, pivot_angles,
-                          wheel_torques, N, M);
+    // compute_wheel_torques(&kelo_base_config, torque_control_state, pivot_angles, wheel_torques, N,
+    //                       M);
     rxpdo1_t rx_msg;
     create_rx_msg(&rx_msg);
-    set_wheel_torques(ethercat_config, &rx_msg, index_to_EtherCAT, wheel_torques,
-                      nWheels, MOTOR_CONST);
+    set_wheel_torques(ethercat_config, &rx_msg, index_to_EtherCAT, wheel_torques, nWheels,
+                      MOTOR_CONST);
     send_and_receive_data(ethercat_config);
-    read_pivot_angles(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels, kelo_base_config.pivot_angles_deviation);
+    read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
+                        kelo_base_config.pivot_angles_deviation, wheel_encoder_values);
+    for (int i = 0; i < nWheels; i++)
+    {
+      printf("Pivot angle %d: %f\n", i, pivot_angles[i]);
+    }
     counter++;
   }
 

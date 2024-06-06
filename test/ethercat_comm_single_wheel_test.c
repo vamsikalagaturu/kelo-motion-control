@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
   double castor_offset = 0.01;
   double half_wheel_distance = 0.0275;
   double wheel_coordinates[2] = {0.175, 0.1605};  // x1,y1,x2,y2,..,y4
-  double pivot_angles_deviation[1] = {-2.5};
+  double pivot_angles_deviation[1] = {0.0};
 
   EthercatConfig *ethercat_config = calloc(1, sizeof(*ethercat_config));
   init_ecx_context(ethercat_config);
@@ -47,8 +47,7 @@ int main(int argc, char *argv[])
 
   for (unsigned int i = 0; i < nWheels; i++)
   {
-    rxpdo1_t *ecData =
-        (rxpdo1_t *)ethercat_config->ecx_slave[index_to_EtherCAT[i]].outputs;
+    rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[index_to_EtherCAT[i]].outputs;
     *ecData = msg;
   }
 
@@ -67,8 +66,9 @@ int main(int argc, char *argv[])
 
   printf("Reading pivot angles\n");
 
-  read_pivot_angles(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
-                    pivot_angles_deviation);
+  double wheel_encoder_values[8];
+  read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
+                      pivot_angles_deviation, wheel_encoder_values);
 
   // print pivot angles
   for (int i = 0; i < nWheels; i++)
@@ -77,15 +77,14 @@ int main(int argc, char *argv[])
   }
 
   int counter = 0;
-  while (counter < 5)
+  while (true)
   {
     printf("Counter: %d\n", counter);
-    usleep(100000);
+    usleep(10000);
     ecx_receive_processdata(&ethercat_config->ecx_context, EC_TIMEOUTRET);
     for (unsigned int i = 0; i < nWheels; i++)
     {
-      txpdo1_t *ecData =
-          (txpdo1_t *)ethercat_config->ecx_slave[index_to_EtherCAT[i]].inputs;
+      txpdo1_t *ecData = (txpdo1_t *)ethercat_config->ecx_slave[index_to_EtherCAT[i]].inputs;
       pivot_angles[i] = ecData->encoder_pivot;
       printf("Pivot angle %d: %f\n", i, pivot_angles[i]);
     }
