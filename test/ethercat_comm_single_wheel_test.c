@@ -66,9 +66,10 @@ int main(int argc, char *argv[])
 
   printf("Reading pivot angles\n");
 
-  double wheel_encoder_values[8];
+  double wheel_encoder_values[8] = {0.0};
+  double wheel_angular_velocities[8] = {0.0};
   read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
-                      pivot_angles_deviation, wheel_encoder_values);
+                      pivot_angles_deviation, wheel_encoder_values, wheel_angular_velocities);
 
   // print pivot angles
   for (int i = 0; i < nWheels; i++)

@@ -120,7 +120,8 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
 }
 
 void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
-                         int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values)
+                         int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values,
+                         double *wheel_angular_velocities)
 {
   for (unsigned int i = 0; i < nWheels; i++)
   {
@@ -133,5 +134,8 @@ void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *inde
 
     wheel_encoder_values[2 * i] = ecData->encoder_1;
     wheel_encoder_values[2 * i + 1] = ecData->encoder_2;
+
+    wheel_angular_velocities[2 * i] = ecData->velocity_1;
+    wheel_angular_velocities[2 * i + 1] = ecData->velocity_2;
   }
 }

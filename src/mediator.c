@@ -53,14 +53,11 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
 
 void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
                          double* pivot_angles, double* wheel_encoder_values,
-                         double* prev_wheel_encoders, double* odomx, double* odomy, double* odoma)
+                         double *wheel_angular_velocities)
 {
   read_encoder_values(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
                       kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation,
-                      wheel_encoder_values);
-
-  update_odom(odomx, odomy, odoma, wheel_encoder_values, prev_wheel_encoders, pivot_angles,
-              kelo_base_config);
+                      wheel_encoder_values, wheel_angular_velocities);
 }
 
 void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,

@@ -31,12 +31,10 @@ int main()
 
   double wheel_encoder_values[8] = {0.0};
   double prev_wheel_encoders[8] = {0.0};
-  double odomx = 0.0;
-  double odomy = 0.0;
-  double odoma = 0.0;
+  double wheel_angular_velocities[8] = {0.0};
 
   get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
-                      prev_wheel_encoders, &odomx, &odomy, &odoma);
+                      wheel_angular_velocities);
 
   int counter = 0;
   while (true)
@@ -45,10 +43,7 @@ int main()
     usleep(10000);
     send_and_receive_data(ethercat_config);
     get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
-                      prev_wheel_encoders, &odomx, &odomy, &odoma);
-    
-    printf("odom: %f, %f, %f\n", odomx, odomy, odoma);
-
+                        wheel_angular_velocities);
     counter++;
   }
 

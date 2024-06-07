@@ -57,6 +57,7 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
                        double *wheel_torques, int nWheels, double motor_const);
 
 void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
-                         int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values);
+                         int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values,
+                         double *wheel_angular_velocities);
 
 #endif  // KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H

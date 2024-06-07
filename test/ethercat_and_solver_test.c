@@ -79,9 +79,11 @@ int main(int argc, char *argv[])
 
   printf("Reading pivot angles\n");
 
-  double wheel_encoder_values[8];
+  double wheel_encoder_values[8] = {0.0};
+  double wheel_angular_velocities[8] = {0.0};
   read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
-                      kelo_base_config.pivot_angles_deviation, wheel_encoder_values);
+                      kelo_base_config.pivot_angles_deviation, wheel_encoder_values,
+                      wheel_angular_velocities);
 
   // print pivot angles
   for (int i = 0; i < nWheels; i++)
@@ -104,7 +106,8 @@ int main(int argc, char *argv[])
                       MOTOR_CONST);
     send_and_receive_data(ethercat_config);
     read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
-                        kelo_base_config.pivot_angles_deviation, wheel_encoder_values);
+                        kelo_base_config.pivot_angles_deviation, wheel_encoder_values,
+                        wheel_angular_velocities);
     for (int i = 0; i < nWheels; i++)
     {
       printf("Pivot angle %d: %f\n", i, pivot_angles[i]);
