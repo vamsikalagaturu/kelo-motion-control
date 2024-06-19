@@ -6,17 +6,15 @@ extern "C"
 
 int main(int argc, char *argv[])
 {
-  int nWheels = 4;
-  int index_to_EtherCAT[4] = {3, 5, 7, 9};
-  double radius = 0.052;
-  double castor_offset = 0.01;
-  double half_wheel_distance = 0.0275;
-  double wheel_coordinates[8] = {0.175,  0.1605,  -0.175, 0.1605,
-                                 -0.175, -0.1605, 0.175,  -0.1605};  // x1,y1,x2,y2,..,y4
-  double pivot_angles_deviation[4] = {-2.5, -1.25, -2.14, 1.49};
   KeloBaseConfig kelo_base_config;
-  init_kelo_base_config(&kelo_base_config, nWheels, index_to_EtherCAT, radius, castor_offset, half_wheel_distance,
-                        wheel_coordinates, pivot_angles_deviation);
+  kelo_base_config.nWheels = 4;
+  kelo_base_config.index_to_EtherCAT = new int[4]{6, 7, 3, 4};
+  kelo_base_config.radius = 0.115 / 2;
+  kelo_base_config.castor_offset = 0.01;
+  kelo_base_config.half_wheel_distance = 0.0775 / 2;
+  kelo_base_config.wheel_coordinates =
+      new double[8]{0.188, 0.2075, -0.188, 0.2075, -0.188, -0.2075, 0.188, -0.2075};
+  kelo_base_config.pivot_angles_deviation = new double[4]{5.310, 5.533, 1.563, 1.625};
 
   const unsigned int N = 3;
   const unsigned int M = 8;

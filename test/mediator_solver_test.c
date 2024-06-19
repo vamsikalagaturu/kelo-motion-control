@@ -8,9 +8,10 @@ int main()
   kelo_base_config->radius = 0.115 / 2;
   kelo_base_config->castor_offset = 0.01;
   kelo_base_config->half_wheel_distance = 0.0775 / 2;
-  kelo_base_config->wheel_coordinates = (double[8]){0.188, 0.2075, -0.188, 0.2075, -0.188, -0.2075, 0.188, -0.2075};
+  kelo_base_config->wheel_coordinates =
+      (double[8]){0.188, 0.2075, -0.188, 0.2075, -0.188, -0.2075, 0.188, -0.2075};
   kelo_base_config->pivot_angles_deviation = (double[4]){5.310, 5.533, 1.563, 1.625};
-  
+
   EthercatConfig *ethercat_config = calloc(1, sizeof(*ethercat_config));
   init_ecx_context(ethercat_config);
 
@@ -31,14 +32,26 @@ int main()
   get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
                       wheel_angular_velocities);
 
+  const unsigned int N = 3;
+  const unsigned int M = 8;
+
+  TorqueControlState *torque_control_state = calloc(1, sizeof(*torque_control_state));
+  init_torque_control_state(torque_control_state, N, M);
+  set_weight_matrix(torque_control_state, N, M);
+
+  double platform_force[3] = {0.0, 50.0, 0.0};
+  set_platform_force(torque_control_state, platform_force, N);
+
   int counter = 0;
-  while (true)
+  while (counter < 200)
   {
     printf("Counter: %d\n", counter);
     usleep(10000);
-    send_and_receive_data(ethercat_config);
     get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
                         wheel_angular_velocities);
+    compute_wheel_torques(kelo_base_config, torque_control_state, pivot_angles, wheel_torques, N,
+                          M);
+    set_kelo_base_torques(kelo_base_config, ethercat_config, wheel_torques);
     counter++;
   }
 

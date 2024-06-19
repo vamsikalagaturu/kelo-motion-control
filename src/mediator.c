@@ -21,9 +21,9 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
 
   rxpdo1_t msg;
   memset(&msg, 0, sizeof(msg));
+  msg.timestamp = 1;
   msg.command1 = 0;
   msg.command2 = 0;
-  msg.timestamp = 1;
   msg.limit1_p = 0;
   msg.limit1_n = 0;
   msg.limit2_p = 0;
@@ -33,7 +33,7 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
 
   for (size_t i=0; i < kelo_base_config->nWheels; i++)
   {
-    printf("index_to_EtherCAT[%d]: %d\n", i, kelo_base_config->index_to_EtherCAT[i]);
+    printf("index_to_EtherCAT[%ld]: %d\n", i, kelo_base_config->index_to_EtherCAT[i]);
   }
 
   for (size_t i = 0; i < kelo_base_config->nWheels; i++)
@@ -55,6 +55,7 @@ void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ether
                          double* pivot_angles, double* wheel_encoder_values,
                          double *wheel_angular_velocities)
 {
+  ecx_receive_processdata(&ethercat_config->ecx_context, EC_TIMEOUTRET);
   read_encoder_values(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
                       kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation,
                       wheel_encoder_values, wheel_angular_velocities);
@@ -64,10 +65,11 @@ void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* eth
                            double* wheel_torques)
 {
   rxpdo1_t rx_msg;
+  memset(&rx_msg, 0, sizeof(rx_msg));
   create_rx_msg(&rx_msg);
   set_wheel_torques(ethercat_config, &rx_msg, kelo_base_config->index_to_EtherCAT, wheel_torques,
                     kelo_base_config->nWheels, MOTOR_CONST);
-  send_and_receive_data(ethercat_config);
+  ecx_send_processdata(&ethercat_config->ecx_context);
 }
 
 void calculate_robot_velocity(double* vx, double* vy, double* va, double* encDisplacement,
