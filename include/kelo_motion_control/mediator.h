@@ -17,6 +17,8 @@ void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ether
 void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
                            double* wheel_torques);
 
+void update_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config);
+
 void calculate_robot_velocity(double* vx, double* vy, double* va, double* encDisplacement,
                               double* prev_wheel_encoders, double* pivot_angles,
                               double* wheel_encoders, KeloBaseConfig* kelo_base_config);
