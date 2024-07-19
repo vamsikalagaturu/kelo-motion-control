@@ -60,4 +60,7 @@ void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *inde
                          int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values,
                          double *wheel_angular_velocities);
 
+void read_voltages_and_currents(EthercatConfig *config, int *index_to_EtherCAT, int nWheels,
+                                double *voltages, double *currents);
+
 #endif  // KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H

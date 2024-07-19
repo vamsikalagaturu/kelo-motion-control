@@ -3,6 +3,9 @@ project(kelo_motion_control VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Add the -fPIE compile option
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
 set(CMAKE_INSTALL_DIR share/${PROJECT_NAME}/cmake)
 
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
