@@ -31,14 +31,15 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
   msg.setpoint1 = 0;
   msg.setpoint2 = 0;
 
-  for (size_t i=0; i < kelo_base_config->nWheels; i++)
+  for (size_t i = 0; i < kelo_base_config->nWheels; i++)
   {
     printf("index_to_EtherCAT[%ld]: %d\n", i, kelo_base_config->index_to_EtherCAT[i]);
   }
 
   for (size_t i = 0; i < kelo_base_config->nWheels; i++)
   {
-    rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
+    rxpdo1_t* ecData =
+        (rxpdo1_t*)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
     memcpy(ecData, &msg, sizeof(msg));
   }
 
@@ -58,7 +59,8 @@ void update_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* etherca
   create_rx_msg(&rx_msg);
   for (size_t i = 0; i < kelo_base_config->nWheels; i++)
   {
-    rxpdo1_t *ecData = (rxpdo1_t *)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
+    rxpdo1_t* ecData =
+        (rxpdo1_t*)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
     memcpy(ecData, &rx_msg, sizeof(rx_msg));
   }
   send_and_receive_data(ethercat_config);
@@ -66,7 +68,7 @@ void update_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* etherca
 
 void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
                          double* pivot_angles, double* wheel_encoder_values,
-                         double *wheel_angular_velocities)
+                         double* wheel_angular_velocities)
 {
   read_encoder_values(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
                       kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation,
@@ -74,11 +76,12 @@ void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ether
 }
 
 void get_kelo_wheel_voltages_and_currents(KeloBaseConfig* kelo_base_config,
-                                          EthercatConfig* ethercat_config, double* wheel_voltages,
-                                          double* wheel_currents)
+                                          EthercatConfig* ethercat_config, double* bus_voltages,
+                                          double* wheel_voltages, double* wheel_currents)
 {
   read_voltages_and_currents(ethercat_config, kelo_base_config->index_to_EtherCAT,
-                                   kelo_base_config->nWheels, wheel_voltages, wheel_currents);
+                             kelo_base_config->nWheels, bus_voltages, wheel_voltages,
+                             wheel_currents);
 }
 
 void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,

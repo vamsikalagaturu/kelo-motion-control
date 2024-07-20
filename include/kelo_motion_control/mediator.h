@@ -15,8 +15,8 @@ void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ether
                          double* wheel_angular_velocities);
 
 void get_kelo_wheel_voltages_and_currents(KeloBaseConfig* kelo_base_config,
-                                          EthercatConfig* ethercat_config, double* wheel_voltages,
-                                          double* wheel_currents);
+                                          EthercatConfig* ethercat_config, double* bus_voltages,
+                                          double* wheel_voltages, double* wheel_currents);
 
 void set_kelo_base_torques(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
                            double* wheel_torques);

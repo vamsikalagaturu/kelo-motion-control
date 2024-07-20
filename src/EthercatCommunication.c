@@ -140,23 +140,26 @@ void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *inde
   }
 }
 
-void read_voltages_and_currents(EthercatConfig *config, int *index_to_EtherCAT,
-                                int nWheels, double *voltages, double *currents)
+void read_voltages_and_currents(EthercatConfig *config, int *index_to_EtherCAT, int nWheels,
+                                double *bus_voltages, double *wheel_voltages,
+                                double *wheel_currents)
 {
   for (unsigned int i = 0; i < nWheels; i++)
   {
     txpdo1_t *ecData = (txpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].inputs;
-    voltages[2 * i] = ecData->voltage_1;
-    voltages[2 * i + 1] = ecData->voltage_2;
-    
+    wheel_voltages[2 * i] = ecData->voltage_1;
+    wheel_voltages[2 * i + 1] = ecData->voltage_2;
+
+    bus_voltages[i] = ecData->voltage_bus;
+
     double u1 = ecData->current_1_u;
     double v1 = ecData->current_1_v;
     double w1 = ecData->current_1_w;
-    currents[2 * i] = sqrt((u1 * u1 + v1 * v1 + w1 * w1) / 3.0);
+    wheel_currents[2 * i] = sqrt((u1 * u1 + v1 * v1 + w1 * w1) / 3.0);
 
     double u2 = ecData->current_2_u;
     double v2 = ecData->current_2_v;
     double w2 = ecData->current_2_w;
-    currents[2 * i + 1] = sqrt((u2 * u2 + v2 * v2 + w2 * w2) / 3.0);
+    wheel_currents[2 * i + 1] = sqrt((u2 * u2 + v2 * v2 + w2 * w2) / 3.0);
   }
 }
