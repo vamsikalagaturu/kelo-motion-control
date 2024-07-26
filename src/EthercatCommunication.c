@@ -52,7 +52,8 @@ void establish_connection(EthercatConfig *config, char *ifname, int *result)
     printf("Found %d slaves\n", wkc);
     *result = 0;
   }
-  ecx_config_map_group(&config->ecx_context, &config->IOmap, 0);
+  int iomap_size = ecx_config_map_group(&config->ecx_context, config->IOmap, 0);
+  printf("IOmap size: %d\n", iomap_size);
   *result = 0;
 }
 
