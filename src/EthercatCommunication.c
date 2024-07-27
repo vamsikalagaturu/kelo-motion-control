@@ -112,8 +112,9 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
     // msg->setpoint1 = -motor_const * wheel_torques[2 * i];     // units: (rad/sec) for first wheel
     // msg->setpoint2 = motor_const * wheel_torques[2 * i + 1];  // units: (rad/sec) for second wheel
 
-    msg->setpoint1 = wheel_torques[2 * i] / motor_const;     // units: (rad/sec) for first wheel
-    msg->setpoint2 = wheel_torques[2 * i + 1] / motor_const;  // units: (rad/sec) for second wheel
+    // units: (rad/sec)
+    msg->setpoint1 = -wheel_torques[2 * i] / motor_const;   // negative due to inverted frame 
+    msg->setpoint2 = wheel_torques[2 * i + 1] / motor_const;
 
     // Get the output pointer for the current wheel based on EtherCAT mapping
     rxpdo1_t *ecData = (rxpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].outputs;
