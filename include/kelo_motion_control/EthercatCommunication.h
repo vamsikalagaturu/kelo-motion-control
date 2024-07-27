@@ -1,6 +1,10 @@
 #ifndef KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H
 #define KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
@@ -63,5 +67,9 @@ void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *inde
 void read_voltages_and_currents(EthercatConfig *config, int *index_to_EtherCAT, int nWheels,
                                 double *bus_voltages, double *wheel_voltages,
                                 double *wheel_currents);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // KELO_MOTION_CONTROL_ETHERCAT_COMMUNICATION_H

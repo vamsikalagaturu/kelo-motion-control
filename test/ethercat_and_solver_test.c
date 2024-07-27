@@ -93,11 +93,17 @@ int main(int argc, char *argv[])
 
   set_weight_matrix(torque_control_state, N, M);
 
+  for (size_t i = 0; i < 1; i++)
+  {
+    wheel_torques[2 * i]     = 1.0;
+    wheel_torques[2 * i + 1] = -1.0;
+  }
+
   int counter = 0;
-  while (counter < 200)
+  while (true)
   {
     printf("Counter: %d\n", counter);
-    usleep(10000);
+    // usleep(10000);
     // compute_wheel_torques(&kelo_base_config, torque_control_state, pivot_angles, wheel_torques, N,
     //                       M);
     rxpdo1_t rx_msg;

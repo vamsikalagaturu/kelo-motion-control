@@ -54,15 +54,6 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
 
 void update_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config)
 {
-  rxpdo1_t rx_msg;
-  memset(&rx_msg, 0, sizeof(rx_msg));
-  create_rx_msg(&rx_msg);
-  for (size_t i = 0; i < kelo_base_config->nWheels; i++)
-  {
-    rxpdo1_t* ecData =
-        (rxpdo1_t*)ethercat_config->ecx_slave[kelo_base_config->index_to_EtherCAT[i]].outputs;
-    memcpy(ecData, &rx_msg, sizeof(rx_msg));
-  }
   send_and_receive_data(ethercat_config);
 }
 

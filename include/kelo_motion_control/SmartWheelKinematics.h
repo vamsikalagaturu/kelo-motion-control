@@ -9,6 +9,10 @@
 #ifndef TORQUE_TRANSMISSION_H
 #define TORQUE_TRANSMISSION_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /**
  * @brief for a given pair of wheels, torques are calculated to generate corresponding force
  * 
@@ -39,5 +43,9 @@ void map_pivot_forces_to_wheel_torques(const double *pivot_forces,
                                        const double radius,
                                        const double castor_offset,
                                        const double half_wheel_distance);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

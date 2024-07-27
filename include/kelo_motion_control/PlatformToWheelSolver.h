@@ -10,6 +10,10 @@
 #include <stdbool.h>
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef PLATFORM_WHEEL_INVERSE_KINEMATICS_SOLVER_H
 #define PLATFORM_WHEEL_INVERSE_KINEMATICS_SOLVER_H
 
@@ -72,4 +76,9 @@ void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torqu
  * @param m matrix to be printed
  */
 void print_matrix(const gsl_matrix *m);
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif

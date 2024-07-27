@@ -1,6 +1,10 @@
 #ifndef KELO_MOTION_CONTROL_H
 #define KELO_MOTION_CONTROL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_matrix.h>
@@ -11,7 +15,7 @@
 
 #include "kelo_motion_control/PlatformToWheelSolver.h"
 
-#define MOTOR_CONST 3.5714
+#define MOTOR_CONST 0.29
 
 typedef struct
 {
@@ -44,5 +48,9 @@ void compute_wheel_torques(KeloBaseConfig *config, TorqueControlState *state, do
                            int N, int M);
 
 void free_torque_control_state(TorqueControlState *state);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // KELO_MOTION_CONTROL_H

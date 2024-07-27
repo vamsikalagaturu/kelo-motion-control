@@ -86,7 +86,7 @@ install(DIRECTORY include/
 )
 
 # add all cpp files in the test directory as test sources
-file(GLOB test_sources test/*.c)
+file(GLOB test_sources test/*.c test/*.cpp)
 
 # make executables
 foreach(source ${test_sources})

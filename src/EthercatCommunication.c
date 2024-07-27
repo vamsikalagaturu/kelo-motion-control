@@ -12,25 +12,25 @@
 void init_ecx_context(EthercatConfig *config)
 {
   // Initialize context pointers to the relevant parts of the configuration structure.
-  config->ecx_context.port = &config->ecx_port;
-  config->ecx_context.slavelist = &config->ecx_slave[0];
-  config->ecx_context.slavecount = &config->ecx_slavecount;
-  config->ecx_context.maxslave = EC_MAXSLAVE;
-  config->ecx_context.grouplist = &config->ec_group[0];
-  config->ecx_context.maxgroup = EC_MAXGROUP;
-  config->ecx_context.esibuf = &config->esibuf[0];
-  config->ecx_context.esimap = &config->esimap[0];
-  config->ecx_context.esislave = 0;  // Assuming initial value as 0
-  config->ecx_context.elist = &config->ec_elist;
-  config->ecx_context.idxstack = &config->ec_idxstack;
+  config->ecx_context.port              = &config->ecx_port;
+  config->ecx_context.slavelist         = &config->ecx_slave[0];
+  config->ecx_context.slavecount        = &config->ecx_slavecount;
+  config->ecx_context.maxslave          = EC_MAXSLAVE;
+  config->ecx_context.grouplist         = &config->ec_group[0];
+  config->ecx_context.maxgroup          = EC_MAXGROUP;
+  config->ecx_context.esibuf            = &config->esibuf[0];
+  config->ecx_context.esimap            = &config->esimap[0];
+  config->ecx_context.esislave          = 0;  // Assuming initial value as 0
+  config->ecx_context.elist             = &config->ec_elist;
+  config->ecx_context.idxstack          = &config->ec_idxstack;
 
-  config->ecx_context.ecaterror = &config->EcatError;
-  config->ecx_context.DCtime = &config->ec_DCtime;
-  config->ecx_context.SMcommtype = &config->ec_SMcommtype;
-  config->ecx_context.PDOassign = &config->ec_PDOassign;
-  config->ecx_context.PDOdesc = &config->ec_PDOdesc;
-  config->ecx_context.eepSM = &config->ec_SM;
-  config->ecx_context.eepFMMU = &config->ec_FMMU;
+  config->ecx_context.ecaterror         = &config->EcatError;
+  config->ecx_context.DCtime            = &config->ec_DCtime;
+  config->ecx_context.SMcommtype        = &config->ec_SMcommtype;
+  config->ecx_context.PDOassign         = &config->ec_PDOassign;
+  config->ecx_context.PDOdesc           = &config->ec_PDOdesc;
+  config->ecx_context.eepSM             = &config->ec_SM;
+  config->ecx_context.eepFMMU           = &config->ec_FMMU;
   config->ecx_context.manualstatechange = 0;  // 0 typically means no manual state change allowed
 }
 
@@ -79,9 +79,9 @@ void check_slave_state(EthercatConfig *config, uint16 required_state, int *resul
 void process_data_exchange(EthercatConfig *config)
 {
   ecx_send_processdata(&config->ecx_context);
-  config->ecx_slave[0].state = EC_STATE_OPERATIONAL;
-  ecx_send_processdata(&config->ecx_context);
   ecx_receive_processdata(&config->ecx_context, EC_TIMEOUTRET);
+  config->ecx_slave[0].state = EC_STATE_OPERATIONAL;
+  // ecx_send_processdata(&config->ecx_context);
   ecx_writestate(&config->ecx_context, 0);
 }
 
@@ -94,13 +94,13 @@ void send_and_receive_data(EthercatConfig *config)
 void create_rx_msg(rxpdo1_t *msg)
 {
   msg->timestamp = time(NULL);
-  msg->command1 = COM1_ENABLE1 | COM1_ENABLE2 | COM1_MODE_TORQUE;
-  msg->limit1_p = 3;   // upper limit for first wheel
-  msg->limit1_n = -3;  // lower limit for first wheel
-  msg->limit2_p = 3;   // upper limit for second wheel
-  msg->limit2_n = -3;  // lower limit for second wheel
-  msg->setpoint1 = 0;  // setpoint for first wheel
-  msg->setpoint2 = 0;  // setpoint for second wheel
+  msg->command1  = COM1_ENABLE1 | COM1_ENABLE2 | COM1_MODE_TORQUE;
+  msg->limit1_p  = 0.0;  // upper limit for first wheel
+  msg->limit1_n  = 0.0;  // lower limit for first wheel
+  msg->limit2_p  = 0.0;  // upper limit for second wheel
+  msg->limit2_n  = 0.0;  // lower limit for second wheel
+  msg->setpoint1 = 0.0;  // setpoint for first wheel
+  msg->setpoint2 = 0.0;  // setpoint for second wheel
 }
 
 void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_EtherCAT,
@@ -109,8 +109,11 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
   for (unsigned int i = 0; i < nWheels; i++)
   {
     // Update torque values in the message for each wheel
-    msg->setpoint1 = -motor_const * wheel_torques[2 * i];     // units: (rad/sec) for first wheel
-    msg->setpoint2 = motor_const * wheel_torques[2 * i + 1];  // units: (rad/sec) for second wheel
+    // msg->setpoint1 = -motor_const * wheel_torques[2 * i];     // units: (rad/sec) for first wheel
+    // msg->setpoint2 = motor_const * wheel_torques[2 * i + 1];  // units: (rad/sec) for second wheel
+
+    msg->setpoint1 = wheel_torques[2 * i] / motor_const;     // units: (rad/sec) for first wheel
+    msg->setpoint2 = wheel_torques[2 * i + 1] / motor_const;  // units: (rad/sec) for second wheel
 
     // Get the output pointer for the current wheel based on EtherCAT mapping
     rxpdo1_t *ecData = (rxpdo1_t *)config->ecx_slave[index_to_EtherCAT[i]].outputs;

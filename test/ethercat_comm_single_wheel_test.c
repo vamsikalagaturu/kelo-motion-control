@@ -4,7 +4,7 @@
 int main(int argc, char *argv[])
 {
   int nWheels = 1;
-  int index_to_EtherCAT[1] = {4};
+  int index_to_EtherCAT[1] = {6};
   double radius = 0.052;
   double castor_offset = 0.01;
   double half_wheel_distance = 0.0275;
@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
   }
 
   double pivot_angles[1];
-  double wheel_torques[2] = {0.0, 0.0};
+  double wheel_torques[2] = {1.0, -1.0};
 
   printf("Reading pivot angles\n");
 
@@ -81,7 +81,7 @@ int main(int argc, char *argv[])
   while (true)
   {
     printf("Counter: %d\n", counter);
-    usleep(10000);
+    // usleep(10000);
     ecx_receive_processdata(&ethercat_config->ecx_context, EC_TIMEOUTRET);
     for (unsigned int i = 0; i < nWheels; i++)
     {

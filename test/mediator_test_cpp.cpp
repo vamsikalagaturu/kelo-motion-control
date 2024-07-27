@@ -2,16 +2,17 @@
 
 int main()
 {
-  KeloBaseConfig *kelo_base_config = calloc(1, sizeof(*kelo_base_config));
+  KeloBaseConfig *kelo_base_config = new KeloBaseConfig();
   kelo_base_config->nWheels = 4;
-  kelo_base_config->index_to_EtherCAT = (int[4]){6, 7, 3, 4};
+  kelo_base_config->index_to_EtherCAT = new int[4]{6, 7, 3, 4};
   kelo_base_config->radius = 0.115 / 2;
   kelo_base_config->castor_offset = 0.01;
   kelo_base_config->half_wheel_distance = 0.0775 / 2;
-  kelo_base_config->wheel_coordinates = (double[8]){0.188, 0.2075, -0.188, 0.2075, -0.188, -0.2075, 0.188, -0.2075};
-  kelo_base_config->pivot_angles_deviation = (double[4]){5.310, 5.533, 1.563, 1.625};
+  double wheel_coordinates[8] = {0.188, 0.2075, -0.188, 0.2075, -0.188, -0.2075, 0.188, -0.2075};
+  kelo_base_config->wheel_coordinates = wheel_coordinates;
+  kelo_base_config->pivot_angles_deviation = new double[4]{5.310, 5.533, 1.563, 1.625};
   
-  EthercatConfig *ethercat_config = calloc(1, sizeof(*ethercat_config));
+  EthercatConfig *ethercat_config = new EthercatConfig();
   init_ecx_context(ethercat_config);
 
   char ifname[] = "eno1";

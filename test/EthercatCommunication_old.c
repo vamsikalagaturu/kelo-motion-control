@@ -78,8 +78,8 @@ int main(int argc, char *argv[])
   ecx_context.manualstatechange = 0;  // should be 0
 
   int nWheels = 4;
-  int index_to_EtherCAT[4] = {3, 5, 7, 9};
-  bool debug = true;
+  int index_to_EtherCAT[4] = {6, 7, 3, 4};
+  bool debug = false;
 
   /**
    * @brief port name on our PC to initiate connection
@@ -277,7 +277,7 @@ int main(int argc, char *argv[])
    *
    */
   printf("Starting loop\n");
-  while (cnt < 2)
+  while (true)
   {
     printf("Iteration %d\n", cnt);
     /**
@@ -285,7 +285,7 @@ int main(int argc, char *argv[])
      * 1000Hz
      *
      */
-    usleep(10000);
+    // usleep(10000);
 
     /**
      * @brief finding wheel torques for each iteration parameterised by pivot angles

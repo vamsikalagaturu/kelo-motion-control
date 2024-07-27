@@ -8,6 +8,10 @@
 #ifndef KELO_ROBOT_KINEMATICS_H
 #define KELO_ROBOT_KINEMATICS_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include <gsl/gsl_matrix_double.h>
 
 /**
@@ -51,5 +55,9 @@ void force_vector_finder(double *pivot_forces,
                          gsl_vector *work,
                          const gsl_matrix *b,
                          const unsigned int M);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

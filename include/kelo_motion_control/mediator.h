@@ -1,6 +1,10 @@
 #ifndef KELO_MOTION_CONTROL_MEDIATOR_H
 #define KELO_MOTION_CONTROL_MEDIATOR_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "kelo_motion_control/EthercatCommunication.h"
 #include "kelo_motion_control/KeloMotionControl.h"
 
@@ -31,5 +35,9 @@ void calculate_robot_pose(double vx, double vy, double va, double* odomx, double
                           double* odoma);
 
 double norm(double x);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif  // KELO_MOTION_CONTROL_MEDIATOR_H
