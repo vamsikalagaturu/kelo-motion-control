@@ -113,7 +113,7 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
     // msg->setpoint2 = motor_const * wheel_torques[2 * i + 1];  // units: (rad/sec) for second wheel
 
     // units: (rad/sec)
-    msg->setpoint1 = -wheel_torques[2 * i] / motor_const;   // negative due to inverted frame 
+    msg->setpoint1 = wheel_torques[2 * i] / motor_const;   // negative due to inverted frame 
     msg->setpoint2 = wheel_torques[2 * i + 1] / motor_const;
 
     // Get the output pointer for the current wheel based on EtherCAT mapping
@@ -124,7 +124,7 @@ void set_wheel_torques(EthercatConfig *config, rxpdo1_t *msg, int *index_to_Ethe
   }
 }
 
-void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *index_to_EtherCAT,
+void read_encoder_values(EthercatConfig *config, double *pivot_angles, double *pivot_velocities, int *index_to_EtherCAT,
                          int nWheels, double *pivot_angles_deviation, double *wheel_encoder_values,
                          double *wheel_angular_velocities)
 {
@@ -136,6 +136,8 @@ void read_encoder_values(EthercatConfig *config, double *pivot_angles, int *inde
       pivot_angles[i] -= 2 * M_PI;
     else if (pivot_angles[i] < 0.0)
       pivot_angles[i] += 2 * M_PI;
+
+    pivot_velocities[i] = ecData->velocity_pivot;
 
     wheel_encoder_values[2 * i] = ecData->encoder_1;
     wheel_encoder_values[2 * i + 1] = ecData->encoder_2;

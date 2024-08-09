@@ -20,6 +20,7 @@ int main()
   establish_kelo_base_connection(kelo_base_config, ethercat_config, ifname, &result);
 
   double pivot_angles[4] = {0.0};
+  double pivot_velocities[4] = {0.0};
   double wheel_torques[8] = {0.0};
 
   printf("Reading pivot angles\n");
@@ -28,7 +29,7 @@ int main()
   double prev_wheel_encoders[8] = {0.0};
   double wheel_angular_velocities[8] = {0.0};
 
-  get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
+  get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, pivot_velocities, wheel_encoder_values,
                       wheel_angular_velocities);
 
   for (size_t i = 0; i < 1; i++)
@@ -44,7 +45,7 @@ int main()
     usleep(10000);
     set_kelo_base_torques(kelo_base_config, ethercat_config, wheel_torques);
     send_and_receive_data(ethercat_config);
-    get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, wheel_encoder_values,
+    get_kelo_base_state(kelo_base_config, ethercat_config, pivot_angles, pivot_velocities, wheel_encoder_values,
                         wheel_angular_velocities);
     counter++;
   }

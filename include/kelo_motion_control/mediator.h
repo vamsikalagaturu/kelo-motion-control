@@ -15,7 +15,7 @@ void establish_kelo_base_connection(KeloBaseConfig* kelo_base_config,
                                     EthercatConfig* ethercat_config, char* ifname, int* result);
 
 void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
-                         double* pivot_angles, double* wheel_encoder_values,
+                         double* pivot_angles, double *pivot_velocities, double* wheel_encoder_values,
                          double* wheel_angular_velocities);
 
 void get_kelo_wheel_voltages_and_currents(KeloBaseConfig* kelo_base_config,

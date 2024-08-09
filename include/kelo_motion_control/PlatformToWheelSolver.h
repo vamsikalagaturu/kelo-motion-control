@@ -75,7 +75,7 @@ void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torqu
  *
  * @param m matrix to be printed
  */
-void print_matrix(const gsl_matrix *m);
+// void print_matrix(const gsl_matrix *m);
 
 #ifdef __cplusplus
 }

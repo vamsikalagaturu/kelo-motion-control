@@ -75,13 +75,14 @@ int main(int argc, char *argv[])
   set_platform_force(torque_control_state, platform_force, N);
 
   double pivot_angles[4];
+  double pivot_velocities[4] = {0.0};
   double wheel_torques[8] = {0.0};
 
   printf("Reading pivot angles\n");
 
   double wheel_encoder_values[8] = {0.0};
   double wheel_angular_velocities[8] = {0.0};
-  read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
+  read_encoder_values(ethercat_config, pivot_angles, pivot_velocities, index_to_EtherCAT, nWheels,
                       kelo_base_config.pivot_angles_deviation, wheel_encoder_values,
                       wheel_angular_velocities);
 
@@ -111,7 +112,7 @@ int main(int argc, char *argv[])
     set_wheel_torques(ethercat_config, &rx_msg, index_to_EtherCAT, wheel_torques, nWheels,
                       MOTOR_CONST);
     send_and_receive_data(ethercat_config);
-    read_encoder_values(ethercat_config, pivot_angles, index_to_EtherCAT, nWheels,
+    read_encoder_values(ethercat_config, pivot_angles, pivot_velocities, index_to_EtherCAT, nWheels,
                         kelo_base_config.pivot_angles_deviation, wheel_encoder_values,
                         wheel_angular_velocities);
     for (int i = 0; i < nWheels; i++)

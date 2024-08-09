@@ -58,10 +58,10 @@ void update_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* etherca
 }
 
 void get_kelo_base_state(KeloBaseConfig* kelo_base_config, EthercatConfig* ethercat_config,
-                         double* pivot_angles, double* wheel_encoder_values,
+                         double* pivot_angles, double *pivot_velocities, double* wheel_encoder_values,
                          double* wheel_angular_velocities)
 {
-  read_encoder_values(ethercat_config, pivot_angles, kelo_base_config->index_to_EtherCAT,
+  read_encoder_values(ethercat_config, pivot_angles, pivot_velocities, kelo_base_config->index_to_EtherCAT,
                       kelo_base_config->nWheels, kelo_base_config->pivot_angles_deviation,
                       wheel_encoder_values, wheel_angular_velocities);
 }

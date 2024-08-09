@@ -11,19 +11,19 @@
 
 #define _USE_MATH_DEFINES
 
-void print_matrix(const gsl_matrix *m)
-{
-  size_t i, j;
+// void print_matrix(const gsl_matrix *m)
+// {
+//   size_t i, j;
 
-  for (i = 0; i < m->size1; i++)
-  {
-    for (j = 0; j < m->size2; j++)
-    {
-      printf("%f\t", gsl_matrix_get(m, i, j));
-    }
-  }
-  printf("\n");
-}
+//   for (i = 0; i < m->size1; i++)
+//   {
+//     for (j = 0; j < m->size2; j++)
+//     {
+//       printf("%f\t", gsl_matrix_get(m, i, j));
+//     }
+//   }
+//   printf("\n");
+// }
 
 void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torques, double *pivot_angles,
                                      const gsl_matrix *b, gsl_matrix *b_verify, gsl_matrix *A,
@@ -101,7 +101,7 @@ void platform_force_to_wheel_torques(KeloBaseConfig *config, double *wheel_torqu
     gsl_matrix_view _Y = gsl_matrix_view_array(pivot_forces, M, 1);
     gsl_blas_dgemm(CblasNoTrans, CblasNoTrans, 1.0, A, &_Y.matrix, 0.0, b_verify);
     printf("\nReverse calculation: Platform force: \n");
-    print_matrix(b_verify);
-    print_matrix(b);
+    // print_matrix(b_verify);
+    // print_matrix(b);
   }
 }
