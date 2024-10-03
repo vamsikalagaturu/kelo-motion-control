@@ -1,4 +1,4 @@
-# ws21-kelo-500-motion-control
+# kelo-motion-control
 
 In *EthercatCommunication.c* change the port name to the active port on your PC in the line 
         
